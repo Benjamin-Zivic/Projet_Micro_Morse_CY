@@ -86,7 +86,7 @@ int main(void) {
         printf("En attente d'un message...\r\n");
         printf(">");
         lecture_message(message, sizeof(message));
-        printf("Recu : %s\r\n", message);
+        printf("Message saisi : %s\r\n", message);
 
         text_to_morse(message, morse, sizeof(morse));
         printf("Morse : %s\r\n", morse);

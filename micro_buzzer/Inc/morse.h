@@ -12,6 +12,7 @@
 #define MORSE_UNIT 200	// vitesse = 200 ms
 
 extern UART_HandleTypeDef huart2;
+extern volatile uint8_t buzzer_actif;
 
 void morse_init(void);
 void text_to_morse(const char *text, char *output, uint16_t output_size);
