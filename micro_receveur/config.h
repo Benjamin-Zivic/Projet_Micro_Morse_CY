@@ -25,11 +25,17 @@
 #define MORSE_TOLERANCE_PCT     20
 
 /* Seuil ADC au-dessus duquel on considère un signal actif (0-4095) */
-#define MORSE_ADC_THRESHOLD     200
+#define MORSE_ADC_THRESHOLD     2200
 
 /* Nombre d'échantillons consécutifs pour confirmer une transition */
 /* Évite les faux déclenchements sur bruit bref                    */
 #define MORSE_DEBOUNCE_SAMPLES  3
+
+/* Fréquence d'appel de morse_receiver_update() en Hz */
+#define MORSE_SAMPLE_RATE_HZ     100
+
+/* Période correspondante en ms */
+#define MORSE_SAMPLE_PERIOD_MS   (1000 / MORSE_SAMPLE_RATE_HZ)  /* 10 ms */
 
 /* =========================================================
  *  Séquences de début et fin de transmission
