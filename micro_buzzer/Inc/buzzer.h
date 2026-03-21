@@ -9,7 +9,7 @@
 #define INC_BUZZER_H_
 
 #include "main.h"
-extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim1;
 
 void buzzer_on(void);
 void buzzer_off(void);
