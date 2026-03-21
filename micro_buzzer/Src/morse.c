@@ -72,7 +72,15 @@ void lecture_message(char *buffer, uint16_t buffer_size) {
 
     while (i < buffer_size - 1) {
         HAL_UART_Receive(&huart2, &c, 1, HAL_MAX_DELAY);
-        if (c == '\n' || c == '\r' || c == '\0' || c == 26) break;
+
+        if (c == '\n' || c == '\r' || c == '\0' || c == 26) {
+            HAL_UART_Transmit(&huart2, (uint8_t *)"\r\n", 2, HAL_MAX_DELAY); // retour à la ligne dans PuTTY
+            break;
+        }
+
+        // Écho : renvoie le caractère à PuTTY pour l'afficher
+        HAL_UART_Transmit(&huart2, &c, 1, HAL_MAX_DELAY);
+
         buffer[i++] = c;
     }
     buffer[i] = '\0';
