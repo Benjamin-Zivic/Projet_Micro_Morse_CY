@@ -84,6 +84,7 @@ int main(void) {
     {
         /* USER CODE BEGIN WHILE */
         printf("En attente d'un message...\r\n");
+        printf(">");
         lecture_message(message, sizeof(message));
         printf("Recu : %s\r\n", message);
 
