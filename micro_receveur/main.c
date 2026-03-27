@@ -10,7 +10,6 @@
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-#include <string.h>
 #include <stdio.h>
 #include "morse_receiver.h"
 #include "config.h"
@@ -67,8 +66,7 @@ int main(void)
   printf("==============================\r\n");
   /* USER CODE END 2 */
 
-  char received_msg[MORSE_MSG_MAX_LEN] = {0};
-  uint8_t received_len = 0;
+  uint8_t last_len = 0;
 
   while (1)
   {
@@ -81,25 +79,21 @@ int main(void)
         // traitement du signal
     }
 
-    /* Si le décodeur a ajouté une nouvelle lettre, on l'affiche et on la sauvegarde */
-    if (receiver.decoder.message_len > received_len)
+    /* Si le décodeur a ajouté une nouvelle lettre, on l'affiche directement */
+    if (receiver.decoder.message_len > last_len)
     {
         char new_char = receiver.decoder.message[receiver.decoder.message_len - 1];
         printf("RECU: %c\r\n", new_char);
-
-        received_msg[received_len++] = new_char;
-        received_msg[received_len] = '\0';
+        last_len = receiver.decoder.message_len;  // on avance le curseur
     }
 
     /* Si le message est complet, on l'affiche en entier puis on réinitialise */
     if (receiver.decoder.message_ready)
     {
-        printf("RECU: %s\r\n", received_msg);
-
-        received_len = 0;
-        memset(received_msg, 0, sizeof(received_msg));
-
-        morse_receiver_init(&receiver);
+        printf("RECU: %s\r\n", receiver.decoder.message);
+ 
+        last_len = 0;
+        morse_receiver_init(&receiver); /* Réinitialise pour recevoir le prochain message */
     }
 
     /* USER CODE END 3 */
