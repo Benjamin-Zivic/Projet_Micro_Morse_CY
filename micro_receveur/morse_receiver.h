@@ -6,46 +6,33 @@
 #include "morse_decoder.h"
 #include <stdint.h>
 
+/* États possibles du récepteur */
 typedef enum {
-    RECEIVER_IDLE,      /* en attente du prosigne KA   */
-    RECEIVER_ACTIVE,    /* signal sonore en cours       */
-    RECEIVER_SILENT,    /* silence en cours             */
+    RECEIVER_IDLE,    /* Aucun signal reçu, en attente d'activité */
+    RECEIVER_ACTIVE,  /* Un signal sonore est en cours */
+    RECEIVER_SILENT,  /* Un silence est en cours */
 } ReceiverState;
 
+/* Structure principale du récepteur */
 typedef struct {
-    ReceiverState  state;
-    uint32_t       timestamp_ms;    /* début de l'état courant      */
-    uint32_t       last_flush_ms;
-    uint8_t        debounce_count;  /* compteur anti-rebond         */
-    MorseDecoder   decoder;
-    MorseTable     table;
+    ReceiverState state;
+    uint32_t timestamp_ms;   /* Horodatage du début de l'état courant (signal ou silence) */
+    uint32_t last_flush_ms;  /* Horodatage du dernier flush intermédiaire */
+    uint8_t debounce_count;  /* Compteur anti-rebond : nombre d'échantillons consécutifs confirmant l'état */
+    MorseDecoder decoder;    /* Décodeur morse associé */
+    MorseTable table;        /* Table de correspondance morse chargée en mémoire */
 } MorseReceiver;
 
-/**
- * @brief Initialise le récepteur et charge la table morse.
- */
+/* Initialise le récepteur et charge la table morse */
 MorseStatus morse_receiver_init(MorseReceiver *rcv);
 
-/**
- * @brief À appeler périodiquement avec la valeur ADC courante
- *        et le timestamp courant (issu de HAL_GetTick()).
- *
- * @param rcv         Récepteur initialisé.
- * @param adc_value   Valeur ADC brute (0–4095).
- * @param now_ms      Timestamp courant en ms (HAL_GetTick()).
- */
-void morse_receiver_update(MorseReceiver *rcv,
-                           uint16_t       adc_value,
-                           uint32_t       now_ms);
+/* Appeler périodiquement (depuis l'interruption TIM2) avec la valeur ADCet l'horodatage courant */
+void morse_receiver_update(MorseReceiver *rcv, uint16_t adc_value, uint32_t now_ms);
 
-/**
- * @brief Retourne 1 si le message complet a été reçu.
- */
+/* Retourne 1 si le message complet a été reçu et décodé, 0 sinon */
 uint8_t morse_receiver_is_done(const MorseReceiver *rcv);
 
-/**
- * @brief Retourne le message décodé (valide si is_done == 1).
- */
+/* Retourne le message décodé sous forme de chaîne C */
 const char *morse_receiver_get_message(const MorseReceiver *rcv);
 
-#endif /* MORSE_RECEIVER_H */
+#endif

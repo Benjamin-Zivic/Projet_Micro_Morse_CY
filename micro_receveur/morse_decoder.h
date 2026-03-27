@@ -3,50 +3,38 @@
 
 #include "morse.h"
 #include "morse_timing.h"
+#include "config.h"
 #include <stdint.h>
 
-#define MORSE_MSG_MAX_LEN  128
-
+/* États possibles du décodeur */
 typedef enum {
-    DECODER_WAITING_START,
-    DECODER_RECEIVING,
-    DECODER_DONE
+    DECODER_WAITING_START,  
+    DECODER_RECEIVING,      /* Réception et décodage en cours           */
+    DECODER_DONE            /* Message complet reçu, prêt à être lu     */
 } DecoderState;
 
+/* Structure principale du décodeur morse */
 typedef struct {
     DecoderState state;
-    MorseCode    current_code;
-    char         message[MORSE_MSG_MAX_LEN];
-    uint8_t      message_len;
-    uint8_t      message_ready;
+    MorseCode current_code;              /* Code morse de la lettre en cours de construction */
+    char message[MORSE_MSG_MAX_LEN];     /* Message décodé accumulé */
+    uint8_t message_len;                 /* Nombre de caractères décodés jusqu'ici */
+    uint8_t message_ready;               /* Mis à 1 quand le message est complet */
 } MorseDecoder;
 
-/**
- * @brief Initialise le décodeur.
- */
+/* Initialise le décodeur et remet tous ses champs à zéro */
 void morse_decoder_init(MorseDecoder *dec);
 
 /**
- * @brief Soumet une classe temporelle au décodeur.
- *
- * À appeler à chaque fois qu'un signal ou silence est mesuré.
- *
- * @param dec    Décodeur initialisé.
- * @param table  Table morse (pour la résolution caractère).
- * @param cls    Classe temporelle issue de morse_classify_duration().
+ * Soumet une classe temporelle au décodeur.
+ * À appeler à chaque fois qu'un signal actif ou un silence est mesuré.
  */
-void morse_decoder_push(MorseDecoder        *dec,
-                        const MorseTable    *table,
-                        MorseTimingClass     cls);
+void morse_decoder_push(MorseDecoder *dec, const MorseTable *table, MorseTimingClass cls);
 
-/**
- * @brief Retourne le message décodé (valide si state == DECODER_DONE).
- */
+/* Retourne le message décodé sous forme de chaîne */
 const char *morse_decoder_get_message(const MorseDecoder *dec);
 
-/**
- * @brief Force la validation de la lettre en cours (appeler sur timeout de silence).
- */
+/* Force la validation de la lettre en cours de construction */
 void morse_decoder_flush(MorseDecoder *dec, const MorseTable *table);
 
-#endif /* MORSE_DECODER_H */
+#endif 

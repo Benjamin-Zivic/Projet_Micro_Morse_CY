@@ -3,93 +3,57 @@
 
 #include <stdint.h>
 
-/* =========================================================
- *  Constantes
- * ========================================================= */
+/* Nombre maximum de symboles (points/traits) dans un code morse */
+#define MORSE_MAX_SYMBOLS  8
+/* Nombre total d'entrées dans la table : 26 lettres + 10 chiffres + ponctuation */
+#define MORSE_TABLE_SIZE  54
 
-#define MORSE_MAX_SYMBOLS  8   /* max de . / - par caractère            */
-#define MORSE_TABLE_SIZE  54   /* 26 lettres + 10 chiffres + ponct      */
-
-/* =========================================================
- *  Types
- * ========================================================= */
-
-/**
- * @brief Symbole élémentaire morse : point ou trait.
- */
+/* Les deux symboles élémentaires du morse */
 typedef enum {
-    MORSE_DOT  = 0,
-    MORSE_DASH = 1
+    MORSE_DOT = 0,   /* Point  (signal court) */
+    MORSE_DASH = 1    /* Trait  (signal long)  */
 } MorseSymbol;
 
-/**
- * @brief Représentation morse d'un seul caractère.
- */
+/* Séquence de symboles représentant un caractère en morse */
 typedef struct {
     MorseSymbol symbols[MORSE_MAX_SYMBOLS];
-    uint8_t     length;   /* nombre de symboles valides                 */
+    uint8_t length;   /* Nombre de symboles valides dans le tableau */
 } MorseCode;
 
-/**
- * @brief Entrée caractère → code morse.
- */
+/* Association entre un caractère et son code morse */
 typedef struct {
-    char      character;
+    char character;
     MorseCode code;
 } MorseEntry;
 
-/**
- * @brief Table de lookup complète (pointe vers des données const en Flash).
- */
+/* Table de correspondance complète, stockée en mémoire Flash */
 typedef struct {
     const MorseEntry *entries;
-    uint8_t           count;
+    uint8_t count;    /* Nombre d'entrées dans la table */
 } MorseTable;
 
-/* =========================================================
- *  Codes de retour
- * ========================================================= */
 
 typedef enum {
-    MORSE_OK           =  0,
-    MORSE_ERR_NULL     = -1,   /* pointeur NULL passé en argument       */
-    MORSE_ERR_NOTFOUND = -2,   /* caractère absent de la table          */
+    MORSE_OK =  0,
+    MORSE_ERR_NULL = -1,   /* Un pointeur NULL a été passé en argument */
+    MORSE_ERR_NOTFOUND = -2,   /* Le caractère n'existe pas dans la table  */
 } MorseStatus;
 
-/* =========================================================
- *  API publique
- * ========================================================= */
-
 /**
- * @brief Initialise la table morse depuis les données const en Flash.
- *
- * @param table  Pointeur vers la MorseTable à initialiser.
- * @return MORSE_OK si succès, MORSE_ERR_NULL si pointeur invalide.
+ * Initialise la table morse en la faisant pointer vers les données constantes en Flash.
+ * À appeler une fois avant toute utilisation de la table.
  */
 MorseStatus morse_table_load(MorseTable *table);
 
 /**
- * @brief Recherche le MorseCode d'un caractère donné.
- *
- * @param table  Table morse initialisée.
- * @param c      Caractère à chercher (insensible à la casse).
- * @param out    MorseCode correspondant.
- * @return MORSE_OK si trouvé, MORSE_ERR_NOTFOUND sinon.
+ * Cherche le code morse d'un caractère donné.
+ * Exemple : morse_lookup_char(table, 'A', &code) remplit code avec {DOT, DASH}.
  */
-MorseStatus morse_lookup_char(const MorseTable *table,
-                              char              c,
-                              MorseCode        *out);
+MorseStatus morse_lookup_char(const MorseTable *table, char c, MorseCode *out);
 
 /**
- * @brief Décode un MorseCode unique en caractère.
- *
- * @param table  Table morse initialisée.
- * @param code   Code morse à décoder.
- * @param out    Caractère résultant (majuscule).
- * @return MORSE_OK si trouvé, MORSE_ERR_NOTFOUND sinon.
+ * Fait l'opération inverse : à partir d'un code morse, retrouve le caractère.
  */
-MorseStatus morse_decode(const MorseTable *table,
-                         const MorseCode  *code,
-                         char             *out);
+MorseStatus morse_decode(const MorseTable *table, const MorseCode *code, char *out);
 
-#endif /* MORSE_H */
+#endif

@@ -25,8 +25,8 @@ UART_HandleTypeDef huart2;
 MorseReceiver receiver;
 
 volatile uint16_t g_adc_val = 0;
-volatile uint8_t  g_adc_new = 0;
-volatile uint8_t  g_adc_div = 0;
+volatile uint8_t g_adc_new = 0;
+volatile uint8_t g_adc_div = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -81,7 +81,7 @@ int main(void)
         // traitement du signal
     }
 
-    /* nouvelle lettre décodée */
+    /* Si le décodeur a ajouté une nouvelle lettre, on l'affiche et on la sauvegarde */
     if (receiver.decoder.message_len > received_len)
     {
         char new_char = receiver.decoder.message[receiver.decoder.message_len - 1];
@@ -91,7 +91,7 @@ int main(void)
         received_msg[received_len] = '\0';
     }
 
-    /* message complet */
+    /* Si le message est complet, on l'affiche en entier puis on réinitialise */
     if (receiver.decoder.message_ready)
     {
         printf("RECU: %s\r\n", received_msg);
@@ -180,11 +180,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim->Instance != TIM2) return;
 
-    HAL_ADC_Start(&hadc1);
+    HAL_ADC_Start(&hadc1); /* Lance une conversion ADC */
 
     if (HAL_ADC_PollForConversion(&hadc1, 1) == HAL_OK)
     {
-        g_adc_val = HAL_ADC_GetValue(&hadc1);
+        g_adc_val = HAL_ADC_GetValue(&hadc1); /* Récupère la valeur convertie */
 
         /* Affichage 1 fois sur 10 */
         g_adc_div++;
