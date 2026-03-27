@@ -20,7 +20,9 @@ MorseTimingClass morse_classify_duration(uint32_t duration_ms,
         if (IN_RANGE(duration_ms, MORSE_DASH_MS)) return MORSE_TIMING_DASH;
     } else {
         /* --- Silence : trois niveaux de séparation --- */
-        if (IN_RANGE(duration_ms, MORSE_INTER_WORD_MS)) return MORSE_TIMING_INTER_WORD;
+        uint32_t inter_char_max = (uint32_t)MORSE_INTER_CHAR_MS
+                                  * (100 + MORSE_TOLERANCE_PCT) / 100;
+        if (duration_ms > inter_char_max)         return MORSE_TIMING_INTER_WORD;
         if (IN_RANGE(duration_ms, MORSE_INTER_CHAR_MS)) return MORSE_TIMING_INTER_CHAR;
         if (IN_RANGE(duration_ms, MORSE_INTRA_CHAR_MS)) return MORSE_TIMING_INTRA;
     }

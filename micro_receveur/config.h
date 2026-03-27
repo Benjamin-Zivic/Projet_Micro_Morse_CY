@@ -16,7 +16,11 @@
 #define MORSE_INTER_CHAR_MS     (3 * MORSE_UNIT_MS)   /* 180 ms — entre deux lettres */
 #define MORSE_INTER_WORD_MS     (7 * MORSE_UNIT_MS)   /* 420 ms — entre deux mots */
 
+#define MORSE_MSG_MAX_LEN 128
+
 #define MORSE_FLUSH_TIMEOUT_MS  500
+
+#define MORSE_END_OF_MSG_TIMEOUT_MS  1500
 
 /* =========================================================
  *  Marges de tolérance pour le décodeur (en %)

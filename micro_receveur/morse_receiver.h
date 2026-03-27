@@ -15,6 +15,7 @@ typedef enum {
 typedef struct {
     ReceiverState  state;
     uint32_t       timestamp_ms;    /* début de l'état courant      */
+    uint32_t       last_flush_ms;
     uint8_t        debounce_count;  /* compteur anti-rebond         */
     MorseDecoder   decoder;
     MorseTable     table;

@@ -67,23 +67,39 @@ int main(void)
   printf("==============================\r\n");
   /* USER CODE END 2 */
 
+  char received_msg[MORSE_MSG_MAX_LEN] = {0};
+  uint8_t received_len = 0;
+
   while (1)
   {
     /* USER CODE BEGIN 3 */
 
-    /* Affichage ADC */
     if (g_adc_new)
     {
         g_adc_new = 0;
-        // printf("ADC: %u\r\n", g_adc_val);
+
+        // traitement du signal
     }
 
-    /* Message décodé */
-    if (receiver.decoder.message_len > 0)
+    /* nouvelle lettre décodée */
+    if (receiver.decoder.message_len > received_len)
     {
-        printf("RECU: %s\r\n", receiver.decoder.message);
-        receiver.decoder.message_len = 0;
-        memset(receiver.decoder.message, 0, MORSE_MSG_MAX_LEN);
+        char new_char = receiver.decoder.message[receiver.decoder.message_len - 1];
+        printf("RECU: %c\r\n", new_char);
+
+        received_msg[received_len++] = new_char;
+        received_msg[received_len] = '\0';
+    }
+
+    /* message complet */
+    if (receiver.decoder.message_ready)
+    {
+        printf("RECU: %s\r\n", received_msg);
+
+        received_len = 0;
+        memset(received_msg, 0, sizeof(received_msg));
+
+        morse_receiver_init(&receiver);
     }
 
     /* USER CODE END 3 */

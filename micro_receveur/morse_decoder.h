@@ -18,6 +18,7 @@ typedef struct {
     MorseCode    current_code;
     char         message[MORSE_MSG_MAX_LEN];
     uint8_t      message_len;
+    uint8_t      message_ready;
 } MorseDecoder;
 
 /**

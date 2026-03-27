@@ -13,6 +13,7 @@ void morse_decoder_init(MorseDecoder *dec)
 
     dec->state       = DECODER_RECEIVING;
     dec->message_len = 0;
+    dec->message_ready = 0;
     memset(dec->message, 0, MORSE_MSG_MAX_LEN);
     reset_current_code(dec);
 }

@@ -9,6 +9,7 @@ MorseStatus morse_receiver_init(MorseReceiver *rcv)
 
     rcv->state          = RECEIVER_IDLE;
     rcv->timestamp_ms   = 0;
+    rcv->last_flush_ms  = 0;
     rcv->debounce_count = 0;
 
     morse_decoder_init(&rcv->decoder);
@@ -58,6 +59,7 @@ void morse_receiver_update(MorseReceiver *rcv,
 
                     rcv->state          = RECEIVER_ACTIVE;
                     rcv->timestamp_ms   = now_ms;
+                    rcv->last_flush_ms  = now_ms;
                     rcv->debounce_count = 0;
                 }
             } else {
@@ -78,6 +80,7 @@ void morse_receiver_update(MorseReceiver *rcv,
 
                     rcv->state          = RECEIVER_SILENT;
                     rcv->timestamp_ms   = now_ms;
+                    rcv->last_flush_ms  = now_ms;
                     rcv->debounce_count = 0;
                 }
             } else {
@@ -89,11 +92,24 @@ void morse_receiver_update(MorseReceiver *rcv,
     /* Flush de la dernière lettre après un long silence */
     if (rcv->state == RECEIVER_SILENT)
     {
-        uint32_t silence = now_ms - rcv->timestamp_ms;
-        if (silence >= MORSE_FLUSH_TIMEOUT_MS)
+        uint32_t total_silence  = now_ms - rcv->timestamp_ms;
+        uint32_t since_flush    = now_ms - rcv->last_flush_ms;
+
+        /* 1) Fin de message : silence très long → marquer le message prêt */
+        if (total_silence >= MORSE_END_OF_MSG_TIMEOUT_MS)
+        {
+            if (!rcv->decoder.message_ready && rcv->decoder.message_len > 0)
+            {
+                morse_decoder_flush(&rcv->decoder, &rcv->table);
+                rcv->decoder.message_ready = 1;
+            }
+        }
+        /* 2) Flush intermédiaire : valider la lettre en cours si trop long silence */
+        else if (since_flush >= MORSE_FLUSH_TIMEOUT_MS)
         {
             morse_decoder_flush(&rcv->decoder, &rcv->table);
-            rcv->timestamp_ms = now_ms;
+            rcv->last_flush_ms = now_ms;   /* seulement last_flush_ms est mis à jour */
+            /* timestamp_ms reste inchangé → le silence total continue de s'accumuler */
         }
     }
 }
@@ -101,7 +117,7 @@ void morse_receiver_update(MorseReceiver *rcv,
 uint8_t morse_receiver_is_done(const MorseReceiver *rcv)
 {
     if (rcv == NULL) return 0;
-    return (rcv->decoder.state == DECODER_DONE);
+    return rcv->decoder.message_ready;
 }
 
 const char *morse_receiver_get_message(const MorseReceiver *rcv)
