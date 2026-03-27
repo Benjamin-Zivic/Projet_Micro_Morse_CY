@@ -10,9 +10,6 @@
     ((val) >= (uint32_t)(target) * (100 - MORSE_TOLERANCE_PCT) / 100 && \
      (val) <= (uint32_t)(target) * (100 + MORSE_TOLERANCE_PCT) / 100)
 
-/* =========================================================
- *  Implémentation
- * ========================================================= */
 
 MorseTimingClass morse_classify_duration(uint32_t duration_ms,
                                          uint8_t  is_active)

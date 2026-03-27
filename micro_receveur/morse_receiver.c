@@ -24,9 +24,17 @@ void morse_receiver_update(MorseReceiver *rcv,
 
 	    static uint16_t adc_buffer[MOVING_AVG_SIZE] = {0};
 	    static uint8_t  adc_index = 0;
+        static uint8_t  adc_filled = 0;
 
 	    adc_buffer[adc_index] = adc_value;
 	    adc_index = (adc_index + 1) % MOVING_AVG_SIZE;
+
+        // Remplissage initial avec la première valeur
+        if (!adc_filled) {
+            for (uint8_t i = 0; i < MOVING_AVG_SIZE; i++)
+                adc_buffer[i] = adc_value;
+            adc_filled = 1;
+        }
 
 	    uint32_t sum = 0;
 	    for (uint8_t i = 0; i < MOVING_AVG_SIZE; i++) sum += adc_buffer[i];
@@ -76,6 +84,17 @@ void morse_receiver_update(MorseReceiver *rcv,
                 rcv->debounce_count = 0;
             }
             break;
+    }
+
+    /* Flush de la dernière lettre après un long silence */
+    if (rcv->state == RECEIVER_SILENT)
+    {
+        uint32_t silence = now_ms - rcv->timestamp_ms;
+        if (silence >= MORSE_FLUSH_TIMEOUT_MS)
+        {
+            morse_decoder_flush(&rcv->decoder, &rcv->table);
+            rcv->timestamp_ms = now_ms;
+        }
     }
 }
 

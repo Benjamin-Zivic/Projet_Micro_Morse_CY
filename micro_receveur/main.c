@@ -64,44 +64,26 @@ int main(void)
 
   printf("\r\n==============================\r\n");
   printf("Recepteur Morse demarre\r\n");
-  printf("En attente du micro...\r\n");
   printf("==============================\r\n");
-
-  morse_receiver_init(&receiver);
-  receiver.decoder.state = DECODER_RECEIVING;  /* ← bypass KA/AR */
-  HAL_TIM_Base_Start_IT(&htim2);
-  printf("Recepteur morse pret\r\n");
   /* USER CODE END 2 */
 
   while (1)
   {
     /* USER CODE BEGIN 3 */
-	  if (receiver.decoder.message_len > 0)
-	  {
-	      printf("RECU: %s\r\n", receiver.decoder.message);
-	      receiver.decoder.message_len = 0;
-	      memset(receiver.decoder.message, 0, MORSE_MSG_MAX_LEN);
-	  }
-	  if (receiver.decoder.message_len > 0)
-	  {
-	      printf("RECU: %s\r\n", receiver.decoder.message);
-	      receiver.decoder.message_len = 0;
-	      memset(receiver.decoder.message, 0, MORSE_MSG_MAX_LEN);
-	  }
 
     /* Affichage ADC */
     if (g_adc_new)
     {
         g_adc_new = 0;
-      //  printf("ADC: %u\r\n", g_adc_val);
+        // printf("ADC: %u\r\n", g_adc_val);
     }
 
     /* Message décodé */
-    if (morse_receiver_is_done(&receiver))
+    if (receiver.decoder.message_len > 0)
     {
-        const char *msg = morse_receiver_get_message(&receiver);
-        printf("MSG: %s\r\n", msg);
-        morse_receiver_init(&receiver);
+        printf("RECU: %s\r\n", receiver.decoder.message);
+        receiver.decoder.message_len = 0;
+        memset(receiver.decoder.message, 0, MORSE_MSG_MAX_LEN);
     }
 
     /* USER CODE END 3 */

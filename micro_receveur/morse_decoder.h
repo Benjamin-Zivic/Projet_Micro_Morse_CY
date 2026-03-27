@@ -43,4 +43,9 @@ void morse_decoder_push(MorseDecoder        *dec,
  */
 const char *morse_decoder_get_message(const MorseDecoder *dec);
 
+/**
+ * @brief Force la validation de la lettre en cours (appeler sur timeout de silence).
+ */
+void morse_decoder_flush(MorseDecoder *dec, const MorseTable *table);
+
 #endif /* MORSE_DECODER_H */

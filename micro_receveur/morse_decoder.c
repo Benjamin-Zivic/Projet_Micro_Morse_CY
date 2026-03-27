@@ -90,3 +90,10 @@ const char *morse_decoder_get_message(const MorseDecoder *dec)
     if (dec == NULL) return NULL;
     return dec->message;
 }
+
+void morse_decoder_flush(MorseDecoder *dec, const MorseTable *table)
+{
+    if (dec == NULL || table == NULL) return;
+    if (dec->current_code.length > 0)
+        validate_letter(dec, table);
+}
