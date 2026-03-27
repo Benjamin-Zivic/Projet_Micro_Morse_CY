@@ -1,6 +1,7 @@
 #include "morse_receiver.h"
 #include "config.h"
 #include <stddef.h>
+#define MOVING_AVG_SIZE  8
 
 MorseStatus morse_receiver_init(MorseReceiver *rcv)
 {
@@ -18,10 +19,20 @@ void morse_receiver_update(MorseReceiver *rcv,
                            uint16_t       adc_value,
                            uint32_t       now_ms)
 {
-    if (rcv == NULL) return;
-    if (morse_receiver_is_done(rcv)) return;
+	 if (rcv == NULL) return;
+	    if (morse_receiver_is_done(rcv)) return;
 
-    uint8_t is_active = (adc_value >= MORSE_ADC_THRESHOLD);
+	    static uint16_t adc_buffer[MOVING_AVG_SIZE] = {0};
+	    static uint8_t  adc_index = 0;
+
+	    adc_buffer[adc_index] = adc_value;
+	    adc_index = (adc_index + 1) % MOVING_AVG_SIZE;
+
+	    uint32_t sum = 0;
+	    for (uint8_t i = 0; i < MOVING_AVG_SIZE; i++) sum += adc_buffer[i];
+	    uint16_t avg = sum / MOVING_AVG_SIZE;
+
+	    uint8_t is_active = (avg >= MORSE_ADC_THRESHOLD);
 
     switch (rcv->state) {
 
