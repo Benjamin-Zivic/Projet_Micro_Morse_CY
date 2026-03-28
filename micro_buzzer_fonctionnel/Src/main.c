@@ -86,8 +86,8 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  char message[128];
-  char morse[512];
+  char message[128];       /* Buffer pour le message texte reçu du PC */
+  char morse[512];         /* Buffer pour la chaîne morse convertie */
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -101,6 +101,7 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM1_Init();
   MX_USART2_UART_Init();
+  
   /* USER CODE BEGIN 2 */
   morse_init();
   /* USER CODE END 2 */
